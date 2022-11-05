@@ -24,29 +24,32 @@ router.get("/get_all_users", (req, res) => {
 
 router.post("/add_user_verify", (req, res) => {
 
-  data = req.body;
-  let dataUser = data['data'][0];
+  let email = req.body.email;;
+  let password = req.body.password;
+  let name = req.body.name;
+  let phone = req.body.phone;
   try {
-    var existingAccont = false;
+    var success = true;
     connection.query(
-      `SELECT name FROM usuarios WHERE email = '${dataUser['email']}'` , (err, result, fiel) =>{
+      `SELECT name FROM usuarios WHERE email = '${email}'` , (err, result, fiel) =>{
         if(err) throw err;
 
         if(result.length > 0){
-          existingAccont = true;
-          console.log('email ya usao');
-          res.send(existingAccont);
+          success = false;
+          console.log('ERROR, email alredy exist');
+          res.send(success);
         }else{
-          existingAccont = false;
-          console.log('No existe la cueta, proceder a registrarla...');
+          success = true;
+          console.log('Account doesnt exist, proceeds to register...');
           connection.query( 
             `INSERT INTO pet_care_db.usuarios (name, email, password, phone) VALUES(
-            '${dataUser['name']}',
-            '${dataUser['email']}',
-            '${dataUser['password']}',
-            '${dataUser['phone']}')`, (err, result, field) =>{
+            '${name}',
+            '${email}',
+            '${password}',
+            '${phone}')`, (err, result, field) =>{
               if(err) throw err;
-              res.send(result);
+              if(result['affectedRows'] > 0)
+              res.send(success);
                
           });
         }
@@ -64,17 +67,25 @@ router.post("/add_user_verify", (req, res) => {
 });
 
 router.post("/update_user", (req, res) => {
-  data = req.body;
-  let dataUser = data['data'][0];
-  console.log(dataUser['name']);
+ 
+  let id = req.body.id;
+  let name = req.body.name;
+  let email = req.body.email;
+  let phone = req.body.phone;
 try {
   connection.query( 
     `UPDATE pet_care_db.usuarios SET
-    name = '${dataUser['name']}',
-    email = '${dataUser['email']}',
-    phone = '${dataUser['phone']}' WHERE Id = ${dataUser['id'] }`, (err, result, field) =>{
+    name = '${name}',
+    email = '${email}',
+    phone = '${phone}' WHERE Id = ${id}`, (err, result, field) =>{
       if(err) throw err;
-      res.send(result);    
+
+      if(result['affectedRows'] > 0){
+        res.send(true);
+      }
+      else{
+        res.send(false);
+      }  
   });
 } catch (err) {
   res.send(err);
@@ -83,39 +94,39 @@ try {
 });
 
 router.post("/auth_login", (req, res) => {
-  data = req.body;
-  let dataUser = data['data'][0];
-  
-try {
-  connection.query( 
-    `SELECT name, email, phone FROM pet_care_db.usuarios  WHERE email = '${dataUser['email']}' AND password = '${dataUser['password']}'`,
-     (err, result, field) =>{
-      if(err) throw err;
+  let email = req.body.email;
+  let password = req.body.password;
+  try {
+    connection.query(
+      `SELECT name, email, phone FROM pet_care_db.usuarios  WHERE email = '${email}' AND password = '${password}'`,
+      (err, result, field) => {
+        if (err) throw err;
 
-      if(result.length > 0){
-
-        res.send('Enter -> ' + JSON.stringify(result)); 
-
-      }else{
-        res.send('Cuenta no existe');
-      }
-
-         
-  });
-} catch (err) {
-  res.send(err);
-}
+        if (result.length > 0) {
+          res.send(result);
+        } else {
+          res.send('Cuenta no existe');
+        }
+      });
+  } catch (err) {
+    res.send(err);
+  }
 
 });
 
 router.post("/add_pet", (req, res) => {
-  data = req.body;
-  let dataPet = data['data'][0];
+ 
+  let id_user = req.body.id_user;
+  let name_pet = req.body.name_pet;
+  let age_pet = req.body.age_pet;
+  let race_pet = req.body.race_pet;
+  let weight_pet = req.body.weight_pet;
+  let additional_pet = req.body.additional_pet;
 
   try {
     connection.query(
       `INSERT INTO pet_care_db.users_pets (id_user, name_pet, age_pet, race_pet, weight_pet, additional_pet) 
-    VALUES('${dataPet['id_user']}', '${dataPet['name_pet']}', '${dataPet['age_pet']}', '${dataPet['race_pet']}', '${dataPet['weight_pet']}', '${dataPet['additional_pet']}') `,
+    VALUES('${id_user}', '${name_pet}', '${age_pet}', '${race_pet}', '${weight_pet}', '${additional_pet}') `,
       (err, result, field) => {
         if (err) throw err;
 
@@ -132,22 +143,22 @@ router.post("/add_pet", (req, res) => {
 });
 
 router.post("/update_pet", (req, res) => {
-  data = req.body;
-  let dataPet = data['data'][0];
-
+  let { id, name_pet, age_pet, race_pet, weight_pet, additional_pet } = req.body;
   try {
     connection.query( 
       `UPDATE pet_care_db.users_pets SET
-      name_pet = '${dataPet['name_pet']}',
-      age_pet = '${dataPet['age_pet']}',
-      race_pet = '${dataPet['race_pet']}',
-      weight_pet = '${dataPet['weight_pet']}',
-      additional_pet = '${dataPet['additional_pet']}'
-      WHERE id_user = ${dataPet['id_user'] }`, (err, result, field) =>{
+      name_pet = '${name_pet}',
+      age_pet = '${age_pet}',
+      race_pet = '${race_pet}',
+      weight_pet = '${weight_pet}',
+      additional_pet = '${additional_pet}'
+      WHERE id = ${id}`, (err, result, field) =>{
         if(err) throw err;
-        if(result){
-          res.send(result);
-        }    
+        if(result['affectedRows'] > 0){
+          res.send(true);
+        }else{
+          res.send(false);
+        }
     });  
 
   } catch (err) {
@@ -156,13 +167,12 @@ router.post("/update_pet", (req, res) => {
 
 });
 
-router.post("/delete_pet", (req, res) => {
-  data = req.body;
-  let dataPet = data['data'][0];
+router.post("/delete_pet/:id", (req, res) => {
+  let id = req.params.id;
 
   try {
     connection.query( 
-      `DELETE FROM pet_care_db.users_pets WHERE id = '${dataPet['id']}'`, (err, result, field) =>{
+      `DELETE FROM pet_care_db.users_pets WHERE id = '${id}'`, (err, result, field) =>{
         if(err) throw err;
         if(result['affectedRows'] > 0){
           
