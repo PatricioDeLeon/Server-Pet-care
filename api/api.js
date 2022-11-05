@@ -32,9 +32,8 @@ router.post("/add_user_verify", (req, res) => {
   try {
     var success = true;
     connection.query(
-      `SELECT name FROM usuarios WHERE email = '${data}'` , (err, result, fiel) =>{
+      `SELECT name FROM usuarios WHERE email = '${email}'` , (err, result, fiel) =>{
         if(err) throw err;
-
         if(result.length > 0){
           success = false;
           console.log('ERROR, email alredy exist');
@@ -58,9 +57,6 @@ router.post("/add_user_verify", (req, res) => {
       }
 
     );
-
-
-    
   } catch (err) {
     res.send(err);
   }
