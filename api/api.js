@@ -24,14 +24,15 @@ router.get("/get_all_users", (req, res) => {
 
 router.post("/add_user_verify", (req, res) => {
 
-  let email = req.body.email;;
-  let password = req.body.password;
-  let name = req.body.name;
-  let phone = req.body.phone;
+  let email = req.body.data.email;
+  let password = req.body.data.password;
+  let name = req.body.data.name;
+  let phone = req.body.data.phone;
+
   try {
     var success = true;
     connection.query(
-      `SELECT name FROM usuarios WHERE email = '${email}'` , (err, result, fiel) =>{
+      `SELECT name FROM usuarios WHERE email = '${data}'` , (err, result, fiel) =>{
         if(err) throw err;
 
         if(result.length > 0){
@@ -68,10 +69,10 @@ router.post("/add_user_verify", (req, res) => {
 
 router.post("/update_user", (req, res) => {
  
-  let id = req.body.id;
-  let name = req.body.name;
-  let email = req.body.email;
-  let phone = req.body.phone;
+  let id = req.body.data.id;
+  let name = req.body.data.name;
+  let email = req.body.data.email;
+  let phone = req.body.data.phone;
 try {
   connection.query( 
     `UPDATE pet_care_db.usuarios SET
@@ -94,8 +95,8 @@ try {
 });
 
 router.post("/auth_login", (req, res) => {
-  let email = req.body.email;
-  let password = req.body.password;
+  let email = req.body.data.email;
+  let password = req.body.data.password;
   try {
     connection.query(
       `SELECT name, email, phone FROM pet_care_db.usuarios  WHERE email = '${email}' AND password = '${password}'`,
@@ -116,12 +117,12 @@ router.post("/auth_login", (req, res) => {
 
 router.post("/add_pet", (req, res) => {
  
-  let id_user = req.body.id_user;
-  let name_pet = req.body.name_pet;
+  let id_user = req.body.data.id_user;
+  let name_pet = req.body.data.name_pet;
   let age_pet = req.body.age_pet;
-  let race_pet = req.body.race_pet;
-  let weight_pet = req.body.weight_pet;
-  let additional_pet = req.body.additional_pet;
+  let race_pet = req.body.data.race_pet;
+  let weight_pet = req.body.data.weight_pet;
+  let additional_pet = req.body.data.additional_pet;
 
   try {
     connection.query(
@@ -135,7 +136,6 @@ router.post("/add_pet", (req, res) => {
           res.send(true);
         }
       });
-
   } catch (err) {
     res.send(err);
   }
@@ -143,7 +143,7 @@ router.post("/add_pet", (req, res) => {
 });
 
 router.post("/update_pet", (req, res) => {
-  let { id, name_pet, age_pet, race_pet, weight_pet, additional_pet } = req.body;
+  let { id, name_pet, age_pet, race_pet, weight_pet, additional_pet } = req.body.data;
   try {
     connection.query( 
       `UPDATE pet_care_db.users_pets SET
