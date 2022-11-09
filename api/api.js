@@ -24,10 +24,13 @@ router.get("/get_all_users", (req, res) => {
 
 router.post("/add_user_verify", (req, res) => {
 
-  let email = req.body.data.email;
-  let password = req.body.data.password;
-  let name = req.body.data.name;
-  let phone = req.body.data.phone;
+  console.log(JSON.parse(req.body.data));
+  let data = JSON.parse(req.body.data);
+  
+  let email = data.email
+  let password = data.password
+  let name = data.name;
+  let phone = data.phone;
 
   try {
     var success = true;
@@ -63,12 +66,37 @@ router.post("/add_user_verify", (req, res) => {
 
 });
 
+router.get('/get_user_by_id/:id', (req, res) => {
+
+  let id = JSON.parse(req.params.id);
+
+  try {
+    connection.query( 
+      `SELECT id, name,email,phone FROM pet_care_db.usuarios  WHERE Id = ${id}`, (err, result, field) =>{
+        if(err) throw err;
+        if(result){
+          console.log('sucess');
+          res.send(result);
+        }
+        else{
+          console.oog('NONN')
+          res.send(false);
+        }  
+    });
+  } catch (err) {
+    res.send(err);
+  }
+
+
+})
+
 router.post("/update_user", (req, res) => {
- 
-  let id = req.body.data.id;
-  let name = req.body.data.name;
-  let email = req.body.data.email;
-  let phone = req.body.data.phone;
+  let data = JSON.parse(req.body.data);
+  console.log(data);
+  let id = data.id;
+  let name = data.name;
+  let email = data.email;
+  let phone = data.phone;
 try {
   connection.query( 
     `UPDATE pet_care_db.usuarios SET
@@ -78,9 +106,11 @@ try {
       if(err) throw err;
 
       if(result['affectedRows'] > 0){
+        console.log(result)
         res.send(true);
       }
       else{
+        console.olog('Data doesnt updated correctly')
         res.send(false);
       }  
   });
@@ -91,18 +121,25 @@ try {
 });
 
 router.post("/auth_login", (req, res) => {
-  let email = req.body.data.email;
-  let password = req.body.data.password;
+
+  let data = JSON.parse(req.body.data);
+  let email = data.email;
+  let password = data.password;
+
+  console.log(email + " "  + password);
+
   try {
     connection.query(
-      `SELECT name, email, phone FROM pet_care_db.usuarios  WHERE email = '${email}' AND password = '${password}'`,
+      `SELECT id, name, email, phone FROM pet_care_db.usuarios  WHERE email = '${email}' AND password = '${password}'`,
       (err, result, field) => {
         if (err) throw err;
 
         if (result.length > 0) {
+          console.log(result);
           res.send(result);
         } else {
-          res.send('Cuenta no existe');
+          console.log('Error')
+          res.send(false);
         }
       });
   } catch (err) {
@@ -112,13 +149,16 @@ router.post("/auth_login", (req, res) => {
 });
 
 router.post("/add_pet", (req, res) => {
+
+  console.log(JSON.parse(req.body.data));
+  let data = JSON.parse(req.body.data);
  
-  let id_user = req.body.data.id_user;
-  let name_pet = req.body.data.name_pet;
-  let age_pet = req.body.age_pet;
-  let race_pet = req.body.data.race_pet;
-  let weight_pet = req.body.data.weight_pet;
-  let additional_pet = req.body.data.additional_pet;
+  let id_user = data.id_user;
+  let name_pet = data.name_pet;
+  let age_pet = data.age_pet;
+  let race_pet = data.race_pet;
+  let weight_pet = data.weight_pet;
+  let additional_pet = data.additional_pet;
 
   try {
     connection.query(
@@ -130,6 +170,8 @@ router.post("/add_pet", (req, res) => {
         if (result['affectedRows'] > 0) {
           console.log(result);
           res.send(true);
+        }else{
+          res.send(false);
         }
       });
   } catch (err) {
@@ -139,7 +181,8 @@ router.post("/add_pet", (req, res) => {
 });
 
 router.post("/update_pet", (req, res) => {
-  let { id, name_pet, age_pet, race_pet, weight_pet, additional_pet } = req.body.data;
+  console.log(JSON.parse(req.body.data));
+  let { id, name_pet, age_pet, race_pet, weight_pet, additional_pet } = JSON.parse(req.body.data);
   try {
     connection.query( 
       `UPDATE pet_care_db.users_pets SET
@@ -151,8 +194,10 @@ router.post("/update_pet", (req, res) => {
       WHERE id = ${id}`, (err, result, field) =>{
         if(err) throw err;
         if(result['affectedRows'] > 0){
+          console.log(result)
           res.send(true);
         }else{
+          console.log('pet updated failed')
           res.send(false);
         }
     });  
@@ -164,16 +209,16 @@ router.post("/update_pet", (req, res) => {
 });
 
 router.post("/delete_pet/:id", (req, res) => {
-  let id = req.params.id;
-
+  let id = JSON.parse(req.params.id);
   try {
     connection.query( 
       `DELETE FROM pet_care_db.users_pets WHERE id = '${id}'`, (err, result, field) =>{
         if(err) throw err;
         if(result['affectedRows'] > 0){
-          
+          console.log("Pet deleted: " + JSON.stringify(result))
           res.send(true);
         }else{
+          console.log("Pet deleted: Failed" )
           res.send(false);
         }
     });  
@@ -186,8 +231,7 @@ router.post("/delete_pet/:id", (req, res) => {
 
 
 router.get("/get_pet_by_user/:id", (req, res) => {
-  let id_user = req.params.id;
-
+  let id_user = JSON.parse(req.params.id);
   try {
     connection.query( 
       `SELECT * FROM pet_care_db.users_pets WHERE id_user = '${id_user}'`, (err, result, field) =>{
