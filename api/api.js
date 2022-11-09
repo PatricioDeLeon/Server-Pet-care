@@ -23,15 +23,14 @@ router.get("/get_all_users", (req, res) => {
 
 
 router.post("/add_user_verify", (req, res) => {
-
-  //console.log(JSON.parse(req.body.data));
-   let data = JSON.parse(req.body.data);
+  console.log(req.body);
+  // console.log(JSON.parse(req.body.data));
+  //  let data = JSON.parse(req.body.data);
    // let data = req.body.data;
-  console.log(JSON.parse(req.body.data));
-  let email = data.email
-  let password = data.password
-  let name = data.name;
-  let phone = data.phone;
+  let email = req.body.email
+  let password = req.body.password
+  let name = req.body.name;
+  let phone = req.body.phone;
 
   try {
     var success = true;
