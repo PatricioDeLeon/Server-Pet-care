@@ -24,8 +24,9 @@ router.get("/get_all_users", (req, res) => {
 
 router.post("/add_user_verify", (req, res) => {
 
-  console.log(JSON.parse(req.body.data));
-  let data = JSON.parse(req.body.data);
+  //console.log(JSON.parse(req.body.data));
+  // let data = JSON.parse(req.body.data);
+  let data = req.body.data;
   
   let email = data.email
   let password = data.password
@@ -91,7 +92,8 @@ router.get('/get_user_by_id/:id', (req, res) => {
 })
 
 router.post("/update_user", (req, res) => {
-  let data = JSON.parse(req.body.data);
+   // let data = JSON.parse(req.body.data);
+  let data = req.body.data;
   console.log(data);
   let id = data.id;
   let name = data.name;
@@ -121,8 +123,9 @@ try {
 });
 
 router.post("/auth_login", (req, res) => {
-
-  let data = JSON.parse(req.body.data);
+   // let data = JSON.parse(req.body.data);
+   console.log(req.body.data)
+   let data = req.body.data;
   let email = data.email;
   let password = data.password;
 
@@ -150,8 +153,9 @@ router.post("/auth_login", (req, res) => {
 
 router.post("/add_pet", (req, res) => {
 
-  console.log(JSON.parse(req.body.data));
-  let data = JSON.parse(req.body.data);
+   // console.log(JSON.parse(req.body.data));
+   // let data = JSON.parse(req.body.data);
+  let data = req.body.data;
  
   let id_user = data.id_user;
   let name_pet = data.name_pet;
@@ -181,8 +185,9 @@ router.post("/add_pet", (req, res) => {
 });
 
 router.post("/update_pet", (req, res) => {
-  console.log(JSON.parse(req.body.data));
-  let { id, name_pet, age_pet, race_pet, weight_pet, additional_pet } = JSON.parse(req.body.data);
+   // console.log(JSON.parse(req.body.data));
+   // let { id, name_pet, age_pet, race_pet, weight_pet, additional_pet } = JSON.parse(req.body.data);
+  let { id, name_pet, age_pet, race_pet, weight_pet, additional_pet } = req.body.data;
   try {
     connection.query( 
       `UPDATE pet_care_db.users_pets SET
@@ -209,7 +214,8 @@ router.post("/update_pet", (req, res) => {
 });
 
 router.post("/delete_pet/:id", (req, res) => {
-  let id = JSON.parse(req.params.id);
+  // let id = JSON.parse(req.params.id);
+  let id = req.params.id;
   try {
     connection.query( 
       `DELETE FROM pet_care_db.users_pets WHERE id = '${id}'`, (err, result, field) =>{
@@ -231,7 +237,8 @@ router.post("/delete_pet/:id", (req, res) => {
 
 
 router.get("/get_pet_by_user/:id", (req, res) => {
-  let id_user = JSON.parse(req.params.id);
+   // let id_user = JSON.parse(req.params.id);
+  let id_user = req.params.id;
   try {
     connection.query( 
       `SELECT * FROM pet_care_db.users_pets WHERE id_user = '${id_user}'`, (err, result, field) =>{
