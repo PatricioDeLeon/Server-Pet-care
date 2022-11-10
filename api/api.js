@@ -27,10 +27,13 @@ router.post("/add_user_verify", (req, res) => {
   // console.log(JSON.parse(req.body.data));
   //  let data = JSON.parse(req.body.data);
    // let data = req.body.data;
+
   let email = req.body.email
   let password = req.body.password
   let name = req.body.name;
   let phone = req.body.phone;
+
+
 
   try {
     var success = true;
@@ -65,6 +68,7 @@ router.post("/add_user_verify", (req, res) => {
   }
 
 });
+
 
 router.get('/get_user_by_id/:id', (req, res) => {
 
