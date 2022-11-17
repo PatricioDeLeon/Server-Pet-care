@@ -1,7 +1,7 @@
 var router = require('express').Router()
 
 const connection = require("../config/db.connectio");
-
+const moment = require('moment');
 
 router.get("/", function (req, res) {
     res.status(200).json({ message: "DataBase Connected" });
@@ -23,17 +23,14 @@ router.get("/get_all_users", (req, res) => {
 
 
 router.post("/add_user_verify", (req, res) => {
-  console.log(req.body);
-  // console.log(JSON.parse(req.body.data));
-  //  let data = JSON.parse(req.body.data);
-   // let data = req.body.data;
 
+  console.log(req.body);
+ 
   let email = req.body.email
   let password = req.body.password
   let name = req.body.name;
   let phone = req.body.phone;
-
-
+  
 
   try {
     var success = true;
@@ -154,6 +151,8 @@ router.post("/auth_login", (req, res) => {
 
 });
 
+// pets 
+
 router.post("/add_pet", (req, res) => {
 
     console.log(JSON.parse(req.body.data));
@@ -240,18 +239,18 @@ router.post("/delete_pet/:id", (req, res) => {
 
 
 router.get("/get_pet_by_user/:id", (req, res) => {
-    let id_user = JSON.parse(req.params.id);
-  //let id_user = req.params.id;
+  let id_user = JSON.parse(req.params.id);
+  console.log(id_user);
   try {
-    connection.query( 
-      `SELECT * FROM pet_care_db.users_pets WHERE id_user = '${id_user}'`, (err, result, field) =>{
-        if(err) throw err;
-        if(result.length > 0){
+    connection.query(
+      `SELECT * FROM pet_care_db.users_pets WHERE id_user = '${id_user}'`, (err, result, field) => {
+        if (err) throw err;
+        if (result.length > 0) {
           res.send(result);
-        }else{
+        } else {
           res.send(false);
         }
-    });  
+      });
 
   } catch (err) {
     res.send(err);
@@ -260,6 +259,70 @@ router.get("/get_pet_by_user/:id", (req, res) => {
 });
 
 
+// vaccines 
+router.get("/get_vaccine_by_pet/:id", (req, res) => {
+  let id_pet = JSON.parse(req.params.id);
+  try {
+    connection.query(
+      `SELECT * FROM pet_care_db.vaccines_pet WHERE id_pet = '${id_pet}'`, (err, result, field) => {
+        if (err) throw err;
+        if (result.length > 0) {
+          res.send(result);
+        } else {
+          res.send(false);
+        }
+      });
+
+  } catch (err) {
+    res.send(err);
+  }
+
+});
+
+
+router.post("/add_vaccine_pet", (req, res) => {
+
+  console.log(req.body)
+  let data = req.body;
+  let id_user = data.id_user;
+  let id_pet = data.id_pet;
+  let name_pet = data.name_pet;
+  let race_pet = data.race_pet;
+  let vaccine_vac = data.vaccine_vac;
+  let message_vac = data.message_vac;
+  let date = moment().format('YYYY/MM/DD');
+
+  try {
+    connection.query(
+      `INSERT INTO pet_care_db.vaccines_pet (
+      id_user,
+      id_pet,
+      name_pet,
+      race_pet,
+      vaccine_vac,
+      message_vac,
+      date_vac) 
+      VALUES (
+        '${id_user}',
+        '${id_pet}',
+        '${name_pet}',
+        '${race_pet}',
+        '${vaccine_vac}',
+        '${message_vac}',
+        '${date}'
+      )`, (err, result, field) => {
+      if (err) throw err;
+      console.log(result);
+      if (result['affectedRows'] > 0) {
+        res.send(true);
+      } else {
+        res.send(false);
+      }
+    });
+  } catch (err) {
+    res.send(err);
+  }
+});
   
 
 

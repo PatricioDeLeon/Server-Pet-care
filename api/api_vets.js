@@ -11,16 +11,14 @@ router.get("/", function (req, res) {
 router.post("/add_vets_verify", (req, res) => {
     console.log(req.body);
     let code = req.body.code;
-
     let name = req.body.name_vet;
     let email = req.body.email_vet
     let password = req.body.password_vet
     let cedula = req.body.cedula_vet
     let phone = req.body.phone_vet;
     let aux = 0;
-    if (code = JSON.stringify(superCode)) {
+    if (code == superCode) {
         console.log('Codigo correcto');
-
         try {
             var success = true;
             connection.query(
@@ -73,7 +71,7 @@ router.post("/add_vets_verify", (req, res) => {
 
 router.post("/auth_login_vet", (req, res) => {
    
-   console.log(req.body)
+console.log(req.body)
   let data = req.body;
   let email = data.email_vet;
   let password = data.password_vet;
