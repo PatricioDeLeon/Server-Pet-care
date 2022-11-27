@@ -16,6 +16,7 @@ router.post("/add_vets_verify", (req, res) => {
     let password = req.body.password_vet
     let cedula = req.body.cedula_vet
     let phone = req.body.phone_vet;
+    let uid = req.body.uid_vet;
     let aux = 0;
     if (code == superCode) {
         console.log('Codigo correcto');
@@ -42,12 +43,13 @@ router.post("/add_vets_verify", (req, res) => {
                         success = true;
                         console.log('Account doesnt exist, proceeds to register...');
                         connection.query(
-                            `INSERT INTO pet_care_db.veterinarios (name_vet, email_vet, password_vet, cedula_vet, phone_vet) VALUES(
+                            `INSERT INTO pet_care_db.veterinarios (name_vet, email_vet, password_vet, cedula_vet, phone_vet, uid_vet) VALUES(
                       '${name}',
                       '${email}',
                       '${password}',
                       '${cedula}',
-                      '${phone}')`, (err, result, field) => {
+                      '${phone}',
+                      '${uid}' )`, (err, result, field) => {
                             if (err) throw err;
                             if (result['affectedRows'] > 0) {
                                 res.send(success);
@@ -91,6 +93,61 @@ console.log(req.body)
   } catch (err) {
     res.send(err);
   }
+
+});
+
+router.get('/get_vet_by_id/:id', (req, res) => {
+    console.log(req.params.id);
+    let id = JSON.parse(req.params.id);
+  
+    try {
+      connection.query( 
+        `SELECT id_vet, name_vet, email_vet, cedula_vet, phone_vet FROM pet_care_db.veterinarios  WHERE id_vet = '${id}'`, (err, result, field) =>{
+          if(err) throw err;
+          if(result){
+            console.log('sucess');
+            res.send(result);
+          }
+          else{
+            console.log('NONN')
+            res.send(false);
+          }  
+      });
+    } catch (err) {
+      res.send(err);
+    }
+  
+  
+  });
+
+  router.post("/update_vet", (req, res) => {
+    let data = req.body;
+ // let data = req.body.data;
+  console.log(data);
+  let id = data.id_vet;
+  let name = data.name_vet;
+  let email = data.email_vet;
+  let phone = data.phone_vet;
+try {
+  connection.query( 
+    `UPDATE pet_care_db.veterinarios SET
+    name_vet = '${name}',
+    email_vet = '${email}',
+    phone_vet = '${phone}' WHERE id_vet = ${id}`, (err, result, field) =>{
+      if(err) throw err;
+
+      if(result['affectedRows'] > 0){
+        console.log(result)
+        res.send(true);
+      }
+      else{
+        console.log('Data doesnt updated correctly')
+        res.send(false);
+      }  
+  });
+} catch (err) {
+  res.send(err);
+}
 
 });
 

@@ -30,6 +30,7 @@ router.post("/add_user_verify", (req, res) => {
   let password = req.body.password
   let name = req.body.name;
   let phone = req.body.phone;
+  let uid = req.body.uid_user;
   
 
   try {
@@ -45,11 +46,12 @@ router.post("/add_user_verify", (req, res) => {
           success = true;
           console.log('Account doesnt exist, proceeds to register...');
           connection.query( 
-            `INSERT INTO pet_care_db.usuarios (name, email, password, phone) VALUES(
+            `INSERT INTO pet_care_db.usuarios (name, email, password, phone, uid_user) VALUES(
             '${name}',
             '${email}',
             '${password}',
-            '${phone}')`, (err, result, field) =>{
+            '${phone}',
+            '${uid}' )`, (err, result, field) =>{
               if(err) throw err;
               if(result['affectedRows'] > 0)
               res.send(success);
@@ -89,7 +91,7 @@ router.get('/get_user_by_id/:id', (req, res) => {
   }
 
 
-})
+});
 
 router.post("/update_user", (req, res) => {
     let data = JSON.parse(req.body.data);
@@ -311,6 +313,25 @@ router.post("/add_vaccine_pet", (req, res) => {
         '${message_vac}',
         '${date}'
       )`, (err, result, field) => {
+      if (err) throw err;
+      console.log(result);
+      if (result['affectedRows'] > 0) {
+        res.send(true);
+      } else {
+        res.send(false);
+      }
+    });
+  } catch (err) {
+    res.send(err);
+  }
+});
+
+router.get("/delete_vaccine_pet/:id", (req, res) => {
+  console.log(req.params)
+  let id_vac = req.params.id
+  try {
+    connection.query(
+      `DELETE FROM vaccines_pet WHERE id_vac = '${id_vac}'`, (err, result, field) => {
       if (err) throw err;
       console.log(result);
       if (result['affectedRows'] > 0) {
