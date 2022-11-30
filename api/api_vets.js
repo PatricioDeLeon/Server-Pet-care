@@ -18,54 +18,59 @@ router.post("/add_vets_verify", (req, res) => {
     let phone = req.body.phone_vet;
     let uid = req.body.uid_vet;
     let aux = 0;
-    if (code == superCode) {
-        console.log('Codigo correcto');
-        try {
-            var success = true;
-            connection.query(
-                `SELECT email_vet, cedula_vet FROM veterinarios`, (err, result, fiel) => {
-                    if (err) throw err;
+    
+  try {
 
-                    result.forEach(element => {
-                        console.log(element);
+    // GET code from requests_code_vet
+    connection.query(
+      `SELECT code_req FROM pet_care_db.requests_code_vet WHERE email_vet = '${email}'`, (err, code_req, field) => {
+        if (err) throw err;
+        if (code_req[0]['code_req'] == code) {
+          console.log("Correct: " + code_req[0]['code_req'])
 
-                        if (element['email_vet'] == email || element['cedula_vet'] == cedula) {
-                            aux++;
-                        }
-                    });
-                    if (aux > 0) {
-                        success = false;
+          var success = true;
+          connection.query(
+            `SELECT email_vet, cedula_vet FROM veterinarios`, (err, result, fiel) => {
+              if (err) throw err;
 
-                        console.log('ERROR, email or cedula vets alredy exist');
-                        res.send(success);
+              result.forEach(element => {
+                console.log(element);
 
-                    } else {
-                        success = true;
-                        console.log('Account doesnt exist, proceeds to register...');
-                        connection.query(
-                            `INSERT INTO pet_care_db.veterinarios (name_vet, email_vet, password_vet, cedula_vet, phone_vet, uid_vet) VALUES(
+                if (element['email_vet'] == email || element['cedula_vet'] == cedula) {
+                  aux++;
+                }
+              });
+              if (aux > 0) {
+                success = false;
+                console.log('ERROR, email or cedula vets alredy exist');
+                res.send(success);
+              } else {
+                success = true;
+                console.log('Account doesnt exist, proceeds to register...');
+                connection.query(
+                  `INSERT INTO pet_care_db.veterinarios (name_vet, email_vet, password_vet, cedula_vet, phone_vet, uid_vet) VALUES(
                       '${name}',
                       '${email}',
                       '${password}',
                       '${cedula}',
                       '${phone}',
                       '${uid}' )`, (err, result, field) => {
-                            if (err) throw err;
-                            if (result['affectedRows'] > 0) {
-                                res.send(success);
-                            }
-                        });
-                    }
-                }
-
-            );
-        } catch (err) {
-            res.send(err);
+                  if (err) throw err;
+                  if (result['affectedRows'] > 0) {
+                    res.send(success);
+                  }
+                });
+              }
+            });
+        }else{
+          res.send("BadCode")
         }
+      });
+  } catch (err) {
+    res.send(err);
+  }
 
-    } else {
-        res.send("Error")
-    }
+   
 
 
 
@@ -150,6 +155,149 @@ try {
 }
 
 });
+
+router.post("/add_req_vet", (req, res) => {
+  let data = req.body
+  console.log(req.body);
+
+  let email_vet = data.email_vet;
+  let message_req = data.message_req;
+
+  try {
+    connection.query(
+      `SELECT * FROM pet_care_db.requests_code_vet  WHERE email_vet= '${email_vet}'`, (err, result, field) => {
+        if (err) throw err;
+        if (result.length == 0) {
+          console.log('esta vacio, se registrara en: pet_care_db.requests_code_vet ');
+
+          connection.query(
+            `INSERT INTO pet_care_db.requests_code_vet (email_vet, message_req, status_req) VALUES(
+               '${email_vet}',
+               '${message_req}',
+               '0' )`, (err, result, field) => {
+            if (err) throw err;
+            if (result['affectedRows'] > 0) {
+              console.log('vet account registred!!');
+              res.send(true);
+            } else {
+              console.log("vet account registred failed :(");
+              res.send(false);
+            }
+          });
+
+        } else if (result.length > 0) {
+          console.log('ya se hizo una peticion anteriormente');
+          res.send("exist");
+        }
+      });
+  } catch (err) {
+    res.send(err);
+  }
+})
+
+router.post("/ckeck_status_code_vet", (req, res) => {
+  let email = req.body.email_vet;
+  try {
+    connection.query(
+      `SELECT * FROM pet_care_db.requests_code_vet WHERE email_vet= '${email}'`, (err, result, field) => {
+        if (err) throw err;
+        console.log(result)
+        if (result.length > 0) {
+          connection.query(
+            `SELECT code_req FROM pet_care_db.requests_code_vet  WHERE email_vet = '${email}'`, (err, data, field) => {
+              if (err) throw err;
+              console.log(data[0]['code_req'])
+              if (data[0]['code_req'] == null) {
+                console.log("peticion aun esta siendo revisada");
+                res.send(false);
+
+              } else {
+
+                console.log("peticion aun esta siendo revisada");
+                console.log("enviando codigo");
+
+                res.send(data[0]['code_req']);
+
+              }
+
+            });
+        } else {
+          console.log('no existe peticion con este email');
+          res.send("noExist");
+        }
+      });
+
+  } catch (err) {
+    res.send(err);
+  }
+ } )
+
+ router.get("/manage_req_vet/:id/:email", (req, res) => {
+  let id = req.params.id
+  let email = req.params.email
+  try {
+
+    console.log(id + " " + email);
+
+    let value = Math.floor(Math.random() * 9999) + 1000;
+
+    console.log(value);
+
+    if(id == 1){
+      connection.query(
+        `UPDATE pet_care_db.requests_code_vet SET
+        code_req = '${value}', status_req = '1' WHERE email_vet = '${email}'`, (err, result, field) => {
+          if (err) throw err;
+          console.log(result)
+          if (result.affectedRows > 0) {
+            res.send(true);
+          } else {
+            console.log('no existe peticion con este email');
+            res.send("noExist");
+          }
+        });
+
+    }
+
+    if(id == 0){
+
+      connection.query(
+        `DELETE FROM pet_care_db.requests_code_vet WHERE email_vet = '${email}'`, (err, result, field) => {
+          if (err) throw err;
+          console.log(result)
+          if (result.affectedRows > 0) {
+            res.send(true);
+          } else {
+            console.log('no existe peticion con este email');
+            res.send("noExist");
+          }
+        });
+
+    }
+   
+
+  } catch (err) {
+    res.send(err);
+  }
+ } );
+
+ router.get("/get_all_requests", (req, res) => {
+
+  connection.query(
+    `SELECT email_vet, message_req FROM pet_care_db.requests_code_vet WHERE status_req = '0'`, (err, result, field) => {
+      if (err) throw err;
+      console.log(result)
+      if (result) {
+        res.send(result);
+      } else {
+        console.log('no existe peticion con este email');
+        res.send("noExist");
+      }
+    });
+
+
+
+ })
 
 
 module.exports = router;

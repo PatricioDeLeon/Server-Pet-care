@@ -32,7 +32,7 @@ app.use(bodyParser.urlencoded({limit: "1200mb", extended: true, parameterLimit:9
 const router = require('./api/routes');
 app.use('/api', router);
 
- // app.listen(port,'192.168.100.11');
+  //  app.listen(port,'192.168.100.11');
 
  // 10.1.127.83
 
